@@ -16,24 +16,20 @@ class POPULATION:
         return self.CIVIL + self.MILITARY + self.ZOMBIES + self.SCIENTISTS
     
 population = POPULATION()
+  
 
-
-
-population.CIVIL = 100
-print(population.CIVIL)  
-        
         
 beta = 0.1
 
 #pop is population
 events = {
-    "ZOMBIE KILLS CIVIL": lambda pop: 0.1*pop.CIVIL*pop.ZOMBIES / pop.total_population(),
+    "ZOMBIE KILLS CIVIL": lambda pop: 0.01*pop.CIVIL*pop.ZOMBIES / pop.total_population(),
     "MILITARY KILLS ZOMBIE": lambda pop: 0.5*pop.CIVIL*pop.ZOMBIES / pop.total_population(),
     "ZOMBIE INFECTS CIVIL": lambda pop: 0.03*pop.CIVIL*pop.ZOMBIES / pop.total_population()
       
 }       
 
-print(events["CIVIL DIES"](population))
+print(events["ZOMBIE KILLS CIVIL"](population))
 
 '''
 1. Place yourself immediately after and event
@@ -57,7 +53,7 @@ def Kendall_Feller_Step(events):
 
 
 
-def Kendall_Feller(events, time, )
+def Kendall_Feller(events, time):
     pass
 
 
