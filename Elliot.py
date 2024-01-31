@@ -1,36 +1,11 @@
 
 import numpy as np
 import matplotlib as plt
+import Population
 
-#import Population
-
-time = 100 #Number of time intervals
-
-class POPULATION:
-    
-    def __init__(self, civil, military, zombies, scientists):
-        self.CIVIL = civil
-        self.MILITARY = military
-        self.ZOMBIES = zombies
-        self.SCIENTISTS = scientists
-        
-    def decrease_civil(self):
-        self.CIVIL -= 1
-        
-    def increase_civil(self):
-        self.CIVIL += 1
-        
-    def civil_becomes_zombie(self):
-        self.decrease_civil(self)
-        self.increase_zombie(self)
-        
-    def total_population(self):
-        return self.CIVIL + self.MILITARY + self.ZOMBIES + self.SCIENTISTS
 
 #pop is population   
 pop = Population.POPULATION()
-  
-zombie_kills_civil = {"ZOMBIE KILLS CIVIL": lambda pop: 0.01*pop.CIVIL*pop.ZOMBIES / pop.total_population()}
         
 events = [
     {"NAME": "ZOMBIE KILLS CIVIL",
@@ -43,8 +18,6 @@ events = [
      "EFFECT": pop.civil_becomes_zombie()
      }
     ]
-
-  
 
 
 '''
@@ -64,7 +37,9 @@ and repeat the process.
 '''
 
 def do(event):
-    event["EFFECT"]
+    if event:
+        event["EFFECT"]
+    
 
 def update(events):
     
@@ -74,30 +49,31 @@ def update(events):
 def Kendall_Feller_Step(events):
     R = 0
     R_sums = []
-    for a in events.keys():
-        w_a = events[a](pop)
+    for a in events:
+        w_a = a["W_a"](pop)
         R += w_a
         R_sums.append(R)
 
     T = np.random.exponential(scale=1/R)
     s = np.random.uniform(low=0, high=R)
 
-    b = -1
-    for a in events.keys():
-        b+=1
+    for b in range(len(events)):
         if R_sums[b] <= s < R_sums[b+1]:
-            return T, a
-    return T, 'error'           
+            return T, events[b]
+    return T, {'error':'error'}              
 
 def Kendall_Feller(events, start, stop):
     time = start
     ts = [time]
-    populations_for_graph = [for i in events ]
+    event = None
+    
     while time < stop:
+        do(event)
         T, event = Kendall_Feller_Step(events)
         time += T
         ts.append(time)
-        print(time, event)
+        pop.update_history()
+        print(time, event["NAME"])
 
         
         
