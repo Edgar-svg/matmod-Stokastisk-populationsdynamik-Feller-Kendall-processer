@@ -1,11 +1,11 @@
 
 import numpy as np
-import matplotlib as plt
+import matplotlib.pyplot as plt
 import Population
 
 
 #pop is population   
-pop = Population.POPULATION()
+pop = Population.POPULATION(civil=1000, military=100, zombies=1, scientists=5)
         
 events = [
     {"NAME": "ZOMBIE KILLS CIVIL",
@@ -41,11 +41,6 @@ def do(event):
         event["EFFECT"]
     
 
-def update(events):
-    
-    
-    pass
-
 def Kendall_Feller_Step(events):
     R = 0
     R_sums = []
@@ -59,8 +54,8 @@ def Kendall_Feller_Step(events):
 
     for b in range(len(events)):
         if R_sums[b] <= s < R_sums[b+1]:
-            return T, events[b]
-    return T, {'error':'error'}              
+            return T, events[b+1]
+    return T, None             
 
 def Kendall_Feller(events, start, stop):
     time = start
@@ -73,13 +68,20 @@ def Kendall_Feller(events, start, stop):
         time += T
         ts.append(time)
         pop.update_history()
-        print(time, event["NAME"])
+        print(event)
+        if event:
+            print(time, event["NAME"])
 
-        
-        
         #do(event)
         #update(events)
     plt.plot(ts,range(0, len(ts)), marker="x")
+    plot_pop_history(time, pop.get_history())
+    plt.show()
+    
+def plot_pop_history(time, pop_history):
+    for history in pop_history.values():
+        plt.plot(time,history, marker="x")
+    plt.legend(pop_history.keys())
     plt.show()
 
 Kendall_Feller(events, 0, 100)
