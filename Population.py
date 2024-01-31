@@ -29,7 +29,8 @@ class POPULATION:
         self.CIVIL += 1
         
     def increase_zombie(self):
-        self.ZOMBIES += 1
+        if self.CIVIL > 1:
+            self.ZOMBIES += 1
         
     def civil_becomes_zombie(self):
         self.decrease_civil()
