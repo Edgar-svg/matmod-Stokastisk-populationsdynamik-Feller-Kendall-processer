@@ -1,7 +1,7 @@
 #%%
 import numpy as np
-import matplotlib.pyplot as plt 
-#%%
+import matplotlib as plt
+
 time = 100 #Number of time intervals
 
 class POPULATION:
@@ -14,30 +14,29 @@ class POPULATION:
     
     def total_population(self):
         return self.CIVIL + self.MILITARY + self.ZOMBIES + self.SCIENTISTS
+
     
 population = POPULATION()
   
+        
+events = [
+    {"NAME": "ZOMBIE KILLS CIVIL",
+     "W_a": lambda pop: 0.01*pop.CIVIL*pop.ZOMBIES / pop.total_population(),
+     },
+    {"NAME": "TEST",
+     "W_a": lambda pop: 0.05*pop.CIVIL*pop.ZOMBIES / pop.total_population(),
+     }
+    ]
 #pop is population
+#%% 
 events = {
     "ZOMBIE KILLS CIVIL": lambda pop: 0.01*pop.CIVIL*pop.ZOMBIES / pop.total_population(),
     "MILITARY KILLS ZOMBIE": lambda pop: 0.5*pop.CIVIL*pop.ZOMBIES / pop.total_population(),
-    "ZOMBIE INFECTS CIVIL": lambda pop: 0.03*pop.CIVIL*pop.ZOMBIES / pop.total_population()
-      
+    "ZOMBIE INFECTS CIVIL": lambda pop: 0.03*pop.CIVIL*pop.ZOMBIES / pop.total_population()      
 }       
 #%%
-print(events["ZOMBIE KILLS CIVIL"](population))
-print(events.values)
-#%%
-R = 0
-for key in events.keys():
-    R += events[key](population)
-#%%
-import numpy as np
-# generate one sample of T with R 
-T = np.random.exponential(scale=1/R)
-print(T)
 
-#%%
+
 '''
 1. Place yourself immediately after and event
 has occurred and compute the new populations.
@@ -53,29 +52,26 @@ say that event β has occurred.
 4. Update Time, events and populations,
 and repeat the process.
 '''
+
 def do(event):
     pass
 
-def update(events):
-    pass
 
 def Kendall_Feller_Step(events):
     R = 0
     R_sums = []
-    for a in events.keys():
-        w_a = events[a](population)
+    for a in events:
+        w_a = a["W_a"](population)
         R += w_a
         R_sums.append(R)
 
     T = np.random.exponential(scale=1/R)
     s = np.random.uniform(low=0, high=R)
 
-    b = -1
-    for a in events.keys():
-        b+=1
+    for b in len(events):
         if R_sums[b] < s < R_sums[b+1]:
-            return T, a
-    return T, 'error'           
+            return T, events[b]
+    return T, {'error':'error'}           
 
 def Kendall_Feller(events, start, stop):
     time = start
@@ -95,5 +91,9 @@ Kendall_Feller(events, 0, 100)
 
 
 
-# %%
+
+
+
+
+
 
