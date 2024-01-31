@@ -56,7 +56,6 @@ and repeat the process.
 def do(event):
     pass
 
-
 def Kendall_Feller_Step(events):
     R = 0
     R_sums = []
@@ -68,7 +67,7 @@ def Kendall_Feller_Step(events):
     T = np.random.exponential(scale=1/R)
     s = np.random.uniform(low=0, high=R)
 
-    for b in len(events):
+    for b in range(len(events)):
         if R_sums[b] < s < R_sums[b+1]:
             return T, events[b]
     return T, {'error':'error'}           
@@ -97,3 +96,5 @@ Kendall_Feller(events, 0, 100)
 
 
 
+
+# %%
