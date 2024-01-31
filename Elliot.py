@@ -14,22 +14,31 @@ class POPULATION:
     
     def total_population(self):
         return self.CIVIL + self.MILITARY + self.ZOMBIES + self.SCIENTISTS
+
     
 population = POPULATION()
   
-
+zombie_kills_civil = {"ZOMBIE KILLS CIVIL": lambda pop: 0.01*pop.CIVIL*pop.ZOMBIES / pop.total_population()}
         
-beta = 0.1
-
+events = [
+    {"NAME": "ZOMBIE KILLS CIVIL",
+     "W_a": lambda pop: 0.01*pop.CIVIL*pop.ZOMBIES / pop.total_population(),
+     "EFFECT": lambda pop: pop.CIVIL -= 1
+     },
+    {"NAME": "TEST",
+     "W_a": lambda pop: 0.05*pop.CIVIL*pop.ZOMBIES / pop.total_population(),
+     "EFFECT": lambda pop: pop.CIVIL += 1
+     }
+    ]
 #pop is population
-events = {
+#%%events = {
     "ZOMBIE KILLS CIVIL": lambda pop: 0.01*pop.CIVIL*pop.ZOMBIES / pop.total_population(),
     "MILITARY KILLS ZOMBIE": lambda pop: 0.5*pop.CIVIL*pop.ZOMBIES / pop.total_population(),
     "ZOMBIE INFECTS CIVIL": lambda pop: 0.03*pop.CIVIL*pop.ZOMBIES / pop.total_population()
       
 }       
+#%%
 
-print(events["ZOMBIE KILLS CIVIL"](population))
 
 '''
 1. Place yourself immediately after and event
@@ -47,14 +56,45 @@ say that event β has occurred.
 and repeat the process.
 '''
 
+def do(event):
+    pass
+
+def update(events):
+    pass
+
 def Kendall_Feller_Step(events):
-    
-    pass
+    R = 0
+    R_sums = []
+    for a in events.keys():
+        w_a = events[a](population)
+        R += w_a
+        R_sums.append(R)
 
+    T = np.random.exponential(scale=1/R)
+    s = np.random.uniform(low=0, high=R)
 
+    b = -1
+    for a in events.keys():
+        b+=1
+        if R_sums[b] < s < R_sums[b+1]:
+            return T, a
+    return T, 'error'           
 
-def Kendall_Feller(events, time):
-    pass
+def Kendall_Feller(events, start, stop):
+    time = start
+    ts = [time]
+    while time < stop:
+        T, event = Kendall_Feller_Step(events)
+        time += T
+        ts.append(time)
+        print(time, event)
+
+        #do(event)
+        #update(events)
+    plt.plot(ts,range(0, len(ts)), marker="x")
+    plt.show()
+
+Kendall_Feller(events, 0, 100)
 
 
 
