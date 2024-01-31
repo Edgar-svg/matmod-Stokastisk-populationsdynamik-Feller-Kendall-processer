@@ -1,32 +1,25 @@
 #%%
 import numpy as np
-import matplotlib as plt
+import matplotlib.pyplot as plt
+import Population
 
 time = 100 #Number of time intervals
 
-class POPULATION:
-    
-    def __init__(self):
-        self.CIVIL = 1000
-        self.MILITARY = 100
-        self.ZOMBIES = 1
-        self.SCIENTISTS = 5
-    
-    def total_population(self):
-        return self.CIVIL + self.MILITARY + self.ZOMBIES + self.SCIENTISTS
-
-    
-population = POPULATION()
+pop = Population.POPULATION()
   
+zombie_kills_civil = {"ZOMBIE KILLS CIVIL": lambda pop: 0.01*pop.CIVIL*pop.ZOMBIES / pop.total_population()}
         
 events = [
     {"NAME": "ZOMBIE KILLS CIVIL",
      "W_a": lambda pop: 0.01*pop.CIVIL*pop.ZOMBIES / pop.total_population(),
+     "EFFECT": pop.decrease_civil()
      },
-    {"NAME": "TEST",
+    {"NAME": "CIVIL GETS INFECTED",
      "W_a": lambda pop: 0.05*pop.CIVIL*pop.ZOMBIES / pop.total_population(),
+     "EFFECT": pop.civil_becomes_zombie()
      }
     ]
+
 #pop is population
 #%% 
 events = {
@@ -54,7 +47,7 @@ and repeat the process.
 '''
 
 def do(event):
-    pass
+    event["EFFECT"]
 
 def Kendall_Feller_Step(events):
     R = 0
@@ -96,5 +89,14 @@ Kendall_Feller(events, 0, 100)
 
 
 
+
+# %%
+import matplotlib.pyplot as plt
+
+def plot_pop_history(time, pop_history):
+    for history in pop_history.values():
+        plt.plot(time,history, marker="x")
+    plt.legend(pop_history.keys())
+    plt.show()
 
 # %%
