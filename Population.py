@@ -1,15 +1,15 @@
 class POPULATION:
-    population_history = {
-        "ZOMBIES":[],
-        "CIVIL": [],
-        "MILITARY": [], 
-        "SCIENTISTS":[]}
     
     def __init__(self, civil, military, zombies, scientists):
         self.CIVIL = civil
         self.MILITARY = military
         self.ZOMBIES = zombies
         self.SCIENTISTS = scientists
+        self.population_history = {
+        "ZOMBIES":[],
+        "CIVIL": [],
+        "MILITARY": [], 
+        "SCIENTISTS":[]}
         self.update_history()
         
     def update_history(self):

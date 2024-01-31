@@ -5,7 +5,7 @@ import Population
 
 
 #pop is population   
-pop = Population.POPULATION(civil=100, military=5, zombies=1, scientists=5)
+pop = Population.POPULATION(civil=100, military=0, zombies=1, scientists=0)
         
 events = [
     {"NAME": "ZOMBIE KILLS CIVIL",
@@ -83,7 +83,8 @@ def Kendall_Feller(events, start, stop):
   
 
 ts = Kendall_Feller(events, 0, 1000)
-plt.plot(ts,range(0, len(ts)), marker="x")
+#splt.plot(ts,range(0, len(ts)), marker="x")
+
 plot_pop_history(ts, pop.get_history())
 plt.show()
 
