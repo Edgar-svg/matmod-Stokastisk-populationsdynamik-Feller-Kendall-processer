@@ -1,33 +1,23 @@
-#%%
+
 import numpy as np
 import matplotlib.pyplot as plt
 import Population
 
-time = 100 #Number of time intervals
 
-pop = Population.POPULATION()
-  
-zombie_kills_civil = {"ZOMBIE KILLS CIVIL": lambda pop: 0.01*pop.CIVIL*pop.ZOMBIES / pop.total_population()}
+#pop is population   
+pop = Population.POPULATION(civil=100, military=5, zombies=1, scientists=5)
         
 events = [
     {"NAME": "ZOMBIE KILLS CIVIL",
      "W_a": lambda pop: 0.01*pop.CIVIL*pop.ZOMBIES / pop.total_population(),
      "EFFECT": pop.decrease_civil()
      },
+    
     {"NAME": "CIVIL GETS INFECTED",
      "W_a": lambda pop: 0.05*pop.CIVIL*pop.ZOMBIES / pop.total_population(),
      "EFFECT": pop.civil_becomes_zombie()
      }
     ]
-
-#pop is population
-#%% 
-events = {
-    "ZOMBIE KILLS CIVIL": lambda pop: 0.01*pop.CIVIL*pop.ZOMBIES / pop.total_population(),
-    "MILITARY KILLS ZOMBIE": lambda pop: 0.5*pop.CIVIL*pop.ZOMBIES / pop.total_population(),
-    "ZOMBIE INFECTS CIVIL": lambda pop: 0.03*pop.CIVIL*pop.ZOMBIES / pop.total_population()      
-}       
-#%%
 
 
 '''
@@ -47,13 +37,15 @@ and repeat the process.
 '''
 
 def do(event):
-    event["EFFECT"]
+    if event:
+        event["EFFECT"]
+    
 
 def Kendall_Feller_Step(events):
     R = 0
     R_sums = []
     for a in events:
-        w_a = a["W_a"](population)
+        w_a = a["W_a"](pop)
         R += w_a
         R_sums.append(R)
 
@@ -61,42 +53,43 @@ def Kendall_Feller_Step(events):
     s = np.random.uniform(low=0, high=R)
 
     for b in range(len(events)):
-        if R_sums[b] < s < R_sums[b+1]:
-            return T, events[b]
-    return T, {'error':'error'}           
+        if R_sums[b] < s <= R_sums[b+1]:
+            return T, events[b+1]
+    return T, None             
 
-def Kendall_Feller(events, start, stop):
-    time = start
-    ts = [time]
-    while time < stop:
-        T, event = Kendall_Feller_Step(events)
-        time += T
-        ts.append(time)
-        print(time, event)
-
-        #do(event)
-        #update(events)
-    plt.plot(ts,range(0, len(ts)), marker="x")
-    plt.show()
-
-Kendall_Feller(events, 0, 100)
-
-
-
-
-
-
-
-
-
-
-# %%
-import matplotlib.pyplot as plt
-
-def plot_pop_history(time, pop_history):
+def plot_pop_history1(time, pop_history):
     for history in pop_history.values():
         plt.plot(time,history, marker="x")
     plt.legend(pop_history.keys())
     plt.show()
 
-# %%
+def plot_pop_history(time, pop_history):
+    names = pop_history.keys()
+    for name in names:
+        plt.plot(time, pop_history[name], marker="x")
+    plt.legend(names)
+    plt.show()
+def Kendall_Feller(events, start, stop):
+    time = start
+    ts = [time]
+    event = None
+    
+    while time < stop:
+        do(event)
+        T, event = Kendall_Feller_Step(events)
+        time += T
+        ts.append(time)
+        pop.update_history()
+        print(event)
+        if event:
+            print(time, event["NAME"])
+    return ts
+    
+ts = Kendall_Feller(events, 0, 1000)
+plt.plot(ts,range(0, len(ts)), marker="x")
+plot_pop_history(ts, pop.get_history())
+plt.show()
+
+
+
+
