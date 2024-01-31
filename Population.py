@@ -10,6 +10,7 @@ class POPULATION:
         self.MILITARY = military
         self.ZOMBIES = zombies
         self.SCIENTISTS = scientists
+        self.update_history()
         
     def update_history(self):
         self.population_history["ZOMBIES"].append(self.ZOMBIES)
