@@ -2,10 +2,30 @@
 import numpy as np
 import matplotlib as plt
 
-import Population
+#import Population
 
 time = 100 #Number of time intervals
 
+class POPULATION:
+    
+    def __init__(self, civil, military, zombies, scientists):
+        self.CIVIL = civil
+        self.MILITARY = military
+        self.ZOMBIES = zombies
+        self.SCIENTISTS = scientists
+        
+    def decrease_civil(self):
+        self.CIVIL -= 1
+        
+    def increase_civil(self):
+        self.CIVIL += 1
+        
+    def civil_becomes_zombie(self):
+        self.decrease_civil(self)
+        self.increase_zombie(self)
+        
+    def total_population(self):
+        return self.CIVIL + self.MILITARY + self.ZOMBIES + self.SCIENTISTS
 
 #pop is population   
 pop = Population.POPULATION()
@@ -17,6 +37,7 @@ events = [
      "W_a": lambda pop: 0.01*pop.CIVIL*pop.ZOMBIES / pop.total_population(),
      "EFFECT": pop.decrease_civil()
      },
+    
     {"NAME": "CIVIL GETS INFECTED",
      "W_a": lambda pop: 0.05*pop.CIVIL*pop.ZOMBIES / pop.total_population(),
      "EFFECT": pop.civil_becomes_zombie()
@@ -54,7 +75,7 @@ def Kendall_Feller_Step(events):
     R = 0
     R_sums = []
     for a in events.keys():
-        w_a = events[a](population)
+        w_a = events[a](pop)
         R += w_a
         R_sums.append(R)
 
