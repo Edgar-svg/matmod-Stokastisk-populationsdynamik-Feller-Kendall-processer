@@ -22,7 +22,8 @@ class POPULATION:
         return self.population_history
     
     def decrease_civil(self):
-        self.CIVIL -= 1
+        if self.CIVIL > 1:
+            self.CIVIL -= 1
         
     def increase_civil(self):
         self.CIVIL += 1

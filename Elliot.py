@@ -9,13 +9,13 @@ pop = Population.POPULATION(civil=100, military=0, zombies=1, scientists=0)
         
 events = [
     {"NAME": "ZOMBIE KILLS CIVIL",
-     "W_a": lambda pop: 0.01*pop.CIVIL*pop.ZOMBIES / pop.total_population(),
-     "EFFECT": pop.decrease_civil()
+     "W_a": lambda pop: 0.1*pop.CIVIL*pop.ZOMBIES / pop.total_population(),
+     "EFFECT": lambda pop: pop.decrease_civil()
      },
     
     {"NAME": "CIVIL GETS INFECTED",
-     "W_a": lambda pop: 0.05*pop.CIVIL*pop.ZOMBIES / pop.total_population(),
-     "EFFECT": pop.civil_becomes_zombie()
+     "W_a": lambda pop: 0.1*pop.CIVIL*pop.ZOMBIES / pop.total_population(),
+     "EFFECT": lambda pop: pop.civil_becomes_zombie()
      }
     ]
 
@@ -38,7 +38,7 @@ and repeat the process.
 
 def do(event):
     if event:
-        event["EFFECT"]
+        event["EFFECT"](pop)
     
 
 def Kendall_Feller_Step(events):
