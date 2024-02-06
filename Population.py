@@ -1,11 +1,12 @@
 class POPULATION:
     
-    def __init__(self, civil, military, scientists, zombies = 1, resistant = 0):
+    def __init__(self, civil, military, scientists, zombies = 1, resistant = 0, vaccine = 0):
         self.CIVIL = civil
         self.MILITARY = military
         self.ZOMBIES = zombies
         self.SCIENTISTS = scientists
         self.RESISTANT = resistant
+        self.VACCINE = vaccine
         
         self.population_history = {
         "ZOMBIES":[],
@@ -68,6 +69,12 @@ class POPULATION:
     def scientist_becomes_zombie(self):
         self.decrease_scientists()
         self.increase_zombie
+        
+    def is_vaccine_invented(self):
+        return self.VACCINE
+    
+    def invent_vaccine(self):
+        self.VACCINE = 1
       
     def total_population(self):
         return self.CIVIL + self.MILITARY + self.ZOMBIES + self.SCIENTISTS + self.RESISTANT

@@ -6,22 +6,47 @@ import Population
 
 #pop is population   
 pop = Population.POPULATION(civil=1000, military=100, scientists=50)
-        
+vaccine = 0      
 events = [
     {"NAME": "ZOMBIE KILLS CIVIL",
      "W_a": lambda pop: 0.1*pop.CIVIL*pop.ZOMBIES / pop.total_population(),
      "EFFECT": lambda pop: pop.decrease_civil()
      },
-    
     {"NAME": "CIVIL GETS INFECTED",
      "W_a": lambda pop: 0.1*pop.CIVIL*pop.ZOMBIES / pop.total_population(),
      "EFFECT": lambda pop: pop.civil_becomes_zombie()
      },
-    
+    # MILITARY 
+    {"NAME": "MILITARY GETS INFECTED",
+     "W_a": lambda pop: (vaccine*0.1)*0.02*pop.MILITARY*pop.ZOMBIES / pop.total_population(),
+     "EFFECT": lambda pop: pop.military_becomes_zombie()
+     },
     {"NAME": "MILITARY KILLS ZOMBIE",
      "W_a": lambda pop: 0.1*pop.MILITARY*pop.ZOMBIES / pop.total_population(),
-     "EFFECT": lambda pop: pop.decrease_zombie()}
+     "EFFECT": lambda pop: pop.decrease_zombie()},
+    {"NAME": "ZOMBIE KILLS MILITARY",
+     "W_a": lambda pop: 0.02*pop.MILITARY*pop.ZOMBIES / pop.total_population(),
+     "EFFECT": lambda pop: pop.decrease_military()
+     },
+     {"NAME": "MILITARY KILLS CIVIL",
+     "W_a": lambda pop: 0.002*pop.MILITARY*pop.ZOMBIES*pop.CIVIL / pop.total_population(),
+     "EFFECT": lambda pop: pop.decrease_civil()
+     },
+    # SCIENTISTS
+    {"NAME": "VACCINE INVENTED",
+     "W_a": lambda pop: (1-pop.is_vaccine_invented())*0.002*pop.SCIENTISTS,
+     "EFFECT": lambda pop: pop.invent_vaccine
+    },
     
+     {"NAME": "ZOMBIE KILLS SCIENTIST",
+     "W_a": lambda pop: 0.1*pop.SCIENTISTS*pop.ZOMBIES / pop.total_population(),
+     "EFFECT": lambda pop: pop.decrease_civil()
+     },
+     
+     {"NAME": "SCIENTIST GETS INFECTED",
+     "W_a": lambda pop: 0.1*pop.SCIENTISTS*pop.ZOMBIES / pop.total_population(),
+     "EFFECT": lambda pop: pop.scientist_becomes_zombie()
+     }
     
     ]
 
@@ -85,8 +110,6 @@ def Kendall_Feller(events, start, stop):
             print(time, event["NAME"])
     return ts
     
-  
-  
 
 ts = Kendall_Feller(events, 0, 10000)
 #splt.plot(ts,range(0, len(ts)), marker="x")
