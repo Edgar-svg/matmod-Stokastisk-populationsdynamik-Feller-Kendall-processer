@@ -6,6 +6,7 @@ class POPULATION:
         self.ZOMBIES = zombies
         self.SCIENTISTS = scientists
         self.RESISTANT = resistant
+        
         self.population_history = {
         "ZOMBIES":[],
         "CIVIL": [],
@@ -60,12 +61,13 @@ class POPULATION:
             self.decrease_civil()
             self.increase_zombie() 
             
-           
     def military_becomes_zombie(self):
         self.decrease_military()
         self.increase_zombie()
         
-     
-        
+    def scientist_becomes_zombie(self):
+        self.decrease_scientists()
+        self.increase_zombie
+      
     def total_population(self):
         return self.CIVIL + self.MILITARY + self.ZOMBIES + self.SCIENTISTS + self.RESISTANT
