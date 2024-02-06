@@ -5,7 +5,7 @@ import Population
 
 
 #pop is population   
-pop = Population.POPULATION(civil=100, military=0, zombies=1, scientists=0)
+pop = Population.POPULATION(civil=1000, military=100, scientists=50)
         
 events = [
     {"NAME": "ZOMBIE KILLS CIVIL",
@@ -16,7 +16,13 @@ events = [
     {"NAME": "CIVIL GETS INFECTED",
      "W_a": lambda pop: 0.1*pop.CIVIL*pop.ZOMBIES / pop.total_population(),
      "EFFECT": lambda pop: pop.civil_becomes_zombie()
-     }
+     },
+    
+    {"NAME": "MILITARY KILLS ZOMBIE",
+     "W_a": lambda pop: 0.1*pop.MILITARY*pop.ZOMBIES / pop.total_population(),
+     "EFFECT": lambda pop: pop.decrease_zombie()}
+    
+    
     ]
 
 
@@ -68,7 +74,7 @@ def Kendall_Feller(events, start, stop):
     ts = [time]
     event = None
     
-    while time < stop:
+    while time < stop and pop.CIVIL :
         do(event)
         T, event = Kendall_Feller_Step(events)
         time += T
@@ -82,7 +88,7 @@ def Kendall_Feller(events, start, stop):
   
   
 
-ts = Kendall_Feller(events, 0, 1000)
+ts = Kendall_Feller(events, 0, 10000)
 #splt.plot(ts,range(0, len(ts)), marker="x")
 
 plot_pop_history(ts, pop.get_history())
