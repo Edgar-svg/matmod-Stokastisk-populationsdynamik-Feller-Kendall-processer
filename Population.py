@@ -27,26 +27,27 @@ class POPULATION:
         return self.population_history
     
     def decrease_civil(self):
-        if self.CIVIL > 0:
+        
             self.CIVIL -= 1
         
     def increase_civil(self):
         self.CIVIL += 1
         
     def decrease_zombie(self):
-        self.ZOMBIES -= 1
+        if self.MILITARY > 0:
+            self.ZOMBIES -= 1
         
     def increase_zombie(self):
         self.ZOMBIES += 1
         
     def decrease_military(self):
-        self.MILITARY -= 1
+            self.MILITARY -= 1
     
     def increase_military(self):
         self.MILITARY += 1  
         
     def decrease_scientists(self):
-        self.SCIENTISTS -= 1
+            self.SCIENTISTS -= 1
         
     def increase_scientists(self):
         self.SCIENTISTS += 1 
@@ -55,10 +56,9 @@ class POPULATION:
         self.SCIENTISTS -= 1
         
     def increase_resistants(self):
-        self.SCIENTISTS += 1
+        self.RESISTANT += 1
         
     def civil_becomes_zombie(self):
-        if self.CIVIL > 0:
             self.decrease_civil()
             self.increase_zombie() 
             
@@ -75,6 +75,10 @@ class POPULATION:
     
     def invent_vaccine(self):
         self.VACCINE = 1
-      
+        
+    def civil_becomes_resistant(self):
+        self.increase_resistants()
+        self.decrease_civil()
+        
     def total_population(self):
         return self.CIVIL + self.MILITARY + self.ZOMBIES + self.SCIENTISTS + self.RESISTANT
