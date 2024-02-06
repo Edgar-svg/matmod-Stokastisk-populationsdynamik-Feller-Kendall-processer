@@ -5,18 +5,44 @@ import Population
 
 
 #pop is population   
-pop = Population.POPULATION(civil=100, military=5, zombies=1, scientists=5)
-        
-events = [
+pop = Population.POPULATION(civil=100, military=0, zombies=1, scientists=0)
+vaccine = 0
+events = [    
+    # CIVIL
     {"NAME": "ZOMBIE KILLS CIVIL",
-     "W_a": lambda pop: 0.01*pop.CIVIL*pop.ZOMBIES / pop.total_population(),
-     "EFFECT": pop.decrease_civil()
+     "W_a": lambda pop: 0.1*pop.CIVIL*pop.ZOMBIES / pop.total_population(),
+     "EFFECT": lambda pop: pop.decrease_civil()
      },
-    
     {"NAME": "CIVIL GETS INFECTED",
-     "W_a": lambda pop: 0.05*pop.CIVIL*pop.ZOMBIES / pop.total_population(),
-     "EFFECT": pop.civil_becomes_zombie()
+     "W_a": lambda pop: 0.1*pop.CIVIL*pop.ZOMBIES / pop.total_population(),
+     "EFFECT": lambda pop: pop.civil_becomes_zombie()
+     },
+    # MILITARY 
+     {"NAME": "MILITARY GETS INFECTED",
+     "W_a": lambda pop: (vaccine*0.1)0.02*pop.MILITARY*pop.ZOMBIES / pop.total_population(),
+     "EFFECT": lambda pop: pop.military_becomes_zombie()
+     },
+    {"NAME": "ZOMBIE KILLS MILITARY",
+     "W_a": lambda pop: 0.02*pop.MILITARY*pop.ZOMBIES / pop.total_population(),
+     "EFFECT": lambda pop: pop.decrease_military()
+     },
+     {"NAME": "MILITARY KILLS CIVIL",
+     "W_a": lambda pop: 0.002*pop.MILITARY*pop.ZOMBIES*pop.CIVIL / pop.total_population(),
+     "EFFECT": lambda pop: pop.decrease_civil()
+     },
+    # SCIENTISTS
+     {"NAME": "VACCINE INVENTED",
+     "W_a": lambda pop: 0.002*pop.SCIENTISTS,
+     "EFFECT": lambda vaccine = 1
      }
+     {"NAME": "ZOMBIE KILLS SCIENTIST",
+     "W_a": lambda pop: 0.1*pop.SCIENTIST*pop.ZOMBIES / pop.total_population(),
+     "EFFECT": lambda pop: pop.decrease_civil()
+     },
+    {"NAME": "SCIENTIST GETS INFECTED",
+     "W_a": lambda pop: 0.1*pop.SCIENTIST*pop.ZOMBIES / pop.total_population(),
+     "EFFECT": lambda pop: pop.scientist_becomes_zombie()
+     },
     ]
 
 
@@ -38,7 +64,7 @@ and repeat the process.
 
 def do(event):
     if event:
-        event["EFFECT"]
+        event["EFFECT"](pop)
     
 
 def Kendall_Feller_Step(events):
@@ -53,22 +79,16 @@ def Kendall_Feller_Step(events):
     s = np.random.uniform(low=0, high=R)
 
     for b in range(len(events)):
-        if R_sums[b] < s <= R_sums[b+1]:
+        if R_sums[b] <= s < R_sums[b+1]:
             return T, events[b+1]
     return T, None             
 
-def plot_pop_history1(time, pop_history):
+def plot_pop_history(time, pop_history):
     for history in pop_history.values():
         plt.plot(time,history, marker="x")
     plt.legend(pop_history.keys())
     plt.show()
 
-def plot_pop_history(time, pop_history):
-    names = pop_history.keys()
-    for name in names:
-        plt.plot(time, pop_history[name], marker="x")
-    plt.legend(names)
-    plt.show()
 def Kendall_Feller(events, start, stop):
     time = start
     ts = [time]
@@ -85,10 +105,18 @@ def Kendall_Feller(events, start, stop):
             print(time, event["NAME"])
     return ts
     
+  
+  
+
 ts = Kendall_Feller(events, 0, 1000)
-plt.plot(ts,range(0, len(ts)), marker="x")
+#splt.plot(ts,range(0, len(ts)), marker="x")
+
 plot_pop_history(ts, pop.get_history())
 plt.show()
+
+
+
+
 
 
 
