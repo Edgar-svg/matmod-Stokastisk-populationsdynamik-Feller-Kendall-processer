@@ -16,7 +16,13 @@ events = [
     {"NAME": "CIVIL GETS INFECTED",
      "W_a": lambda pop: 0.1*pop.CIVIL*pop.ZOMBIES / pop.total_population(),
      "EFFECT": lambda pop: pop.civil_becomes_zombie()
-     }
+     },
+    
+    {"NAME": "MILITARY KILLS ZOMBIE",
+     "W_a": lambda pop: 0.1*pop.MILITARY*pop.ZOMBIES / pop.total_population(),
+     "EFFECT": lambda pop: pop.military_kills_zombie()}
+    
+    
     ]
 
 
@@ -68,7 +74,7 @@ def Kendall_Feller(events, start, stop):
     ts = [time]
     event = None
     
-    while time < stop:
+    while time < stop and pop.CIVIL :
         do(event)
         T, event = Kendall_Feller_Step(events)
         time += T
