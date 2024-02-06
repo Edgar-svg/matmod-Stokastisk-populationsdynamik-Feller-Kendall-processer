@@ -60,9 +60,12 @@ class POPULATION:
             self.decrease_civil()
             self.increase_zombie() 
             
-    def military_kills_zombie(self):
-        self.decrease_zombie()
-            
+           
+    def military_becomes_zombie(self):
+        self.decrease_military()
+        self.increase_zombie()
+        
+     
         
     def total_population(self):
         return self.CIVIL + self.MILITARY + self.ZOMBIES + self.SCIENTISTS + self.RESISTANT
