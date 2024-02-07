@@ -1,27 +1,35 @@
-
+#%%
 import numpy as np
 import matplotlib.pyplot as plt
 import Population
-
+import statistics 
 
 #pop is population   
-pop = Population.POPULATION(civil=100, military=0, zombies=1, scientists=0)
-vaccine = 0
-events = [    
-    # CIVIL
-    {"NAME": "ZOMBIE KILLS CIVIL",
-     "W_a": lambda pop: 0.1*pop.CIVIL*pop.ZOMBIES / pop.total_population(),
-     "EFFECT": lambda pop: pop.decrease_civil()
+pop = Population.POPULATION(civil=1000, military=100, scientists=5)
+end_time = 2000
+vaccine_effectiveness = 1      
+events = [
+    #CIVILS
+    #{"NAME": "ZOMBIE KILLS CIVIL",
+     #"W_a": lambda pop: 0.05*pop.CIVIL*pop.ZOMBIES / pop.total_population(),
+     #"EFFECT": lambda pop: pop.decrease_civil()
+     #},
+    {"NAME": "CIVIL KILLS ZOMBIE",
+     "W_a": lambda pop: 0.01*pop.CIVIL*pop.ZOMBIES / pop.total_population(),
+     "EFFECT": lambda pop: pop.decrease_zombie()
      },
     {"NAME": "CIVIL GETS INFECTED",
-     "W_a": lambda pop: 0.1*pop.CIVIL*pop.ZOMBIES / pop.total_population(),
+     "W_a": lambda pop: 0.05*pop.CIVIL*pop.ZOMBIES / pop.total_population(),
      "EFFECT": lambda pop: pop.civil_becomes_zombie()
      },
     # MILITARY 
-     {"NAME": "MILITARY GETS INFECTED",
-     "W_a": lambda pop: (vaccine*0.1)0.02*pop.MILITARY*pop.ZOMBIES / pop.total_population(),
+    {"NAME": "MILITARY GETS INFECTED",
+     "W_a": lambda pop: (1-vaccine_effectiveness*pop.is_vaccine_invented())*0.02*pop.MILITARY*pop.ZOMBIES / pop.total_population(),
      "EFFECT": lambda pop: pop.military_becomes_zombie()
      },
+    {"NAME": "MILITARY KILLS ZOMBIE",
+     "W_a": lambda pop: 0.1*pop.MILITARY*pop.ZOMBIES / pop.total_population(),
+     "EFFECT": lambda pop: pop.decrease_zombie()},
     {"NAME": "ZOMBIE KILLS MILITARY",
      "W_a": lambda pop: 0.02*pop.MILITARY*pop.ZOMBIES / pop.total_population(),
      "EFFECT": lambda pop: pop.decrease_military()
@@ -31,18 +39,28 @@ events = [
      "EFFECT": lambda pop: pop.decrease_civil()
      },
     # SCIENTISTS
-     {"NAME": "VACCINE INVENTED",
-     "W_a": lambda pop: 0.002*pop.SCIENTISTS,
-     "EFFECT": lambda vaccine = 1
-     }
+    {"NAME": "VACCINE GETS INVENTED",
+     "W_a": lambda pop: (1-pop.is_vaccine_invented())*0.01*pop.SCIENTISTS,
+     "EFFECT": lambda pop: pop.invent_vaccine()
+    },
      {"NAME": "ZOMBIE KILLS SCIENTIST",
-     "W_a": lambda pop: 0.1*pop.SCIENTIST*pop.ZOMBIES / pop.total_population(),
+     "W_a": lambda pop: 0.1*pop.SCIENTISTS*pop.ZOMBIES / pop.total_population(),
      "EFFECT": lambda pop: pop.decrease_civil()
      },
-    {"NAME": "SCIENTIST GETS INFECTED",
-     "W_a": lambda pop: 0.1*pop.SCIENTIST*pop.ZOMBIES / pop.total_population(),
+     {"NAME": "SCIENTIST GETS INFECTED",
+     "W_a": lambda pop: (1-vaccine_effectiveness*pop.is_vaccine_invented())*0.1*pop.SCIENTISTS*pop.ZOMBIES / pop.total_population(),
      "EFFECT": lambda pop: pop.scientist_becomes_zombie()
      },
+     #RESISTANT
+     {"NAME": "CIVIL BECOMES RESISTANT",
+     "W_a": lambda pop: (1-pop.is_vaccine_invented())*0.1*pop.SCIENTISTS*pop.CIVIL / pop.total_population(),
+     "EFFECT": lambda pop: pop.civil_becomes_resistant()
+     },
+     {"NAME": "RESISTANT KILLS ZOMBIE",
+     "W_a": lambda pop: 0.01*pop.RESISTANT*pop.ZOMBIES / pop.total_population(),
+     "EFFECT": lambda pop: pop.decrease_zombie()
+     }
+     
     ]
 
 
@@ -67,14 +85,17 @@ def do(event):
         event["EFFECT"](pop)
     
 
-def Kendall_Feller_Step(events):
+def Kendall_Feller_Step(events, time):
     R = 0
     R_sums = []
     for a in events:
         w_a = a["W_a"](pop)
-        R += w_a
+        R += w_a*0.1
         R_sums.append(R)
-
+        
+    if R == 0:
+        return end_time - time, None 
+      
     T = np.random.exponential(scale=1/R)
     s = np.random.uniform(low=0, high=R)
 
@@ -96,28 +117,143 @@ def Kendall_Feller(events, start, stop):
     
     while time < stop:
         do(event)
-        T, event = Kendall_Feller_Step(events)
+        T, event = Kendall_Feller_Step(events, time)
         time += T
         ts.append(time)
         pop.update_history()
-        print(event)
-        if event:
-            print(time, event["NAME"])
+        #if event:
+            #print(time, event["NAME"])
     return ts
     
-  
-  
 
-ts = Kendall_Feller(events, 0, 1000)
-#splt.plot(ts,range(0, len(ts)), marker="x")
+#ts = Kendall_Feller(events, 0, end_time)
+#plot_pop_history(ts, pop.get_history())
+#plt.show()
 
-plot_pop_history(ts, pop.get_history())
-plt.show()
+#%%
+
+def merge_list_lists(list_lists):
+    merged_list = []
+    for list in list_lists:
+        merged_list += list
+    return merged_list
+
+test = [[1,1,1,1,1,1,1,1,1], [1,2,1,3,2,4,1,2,1], [3,3,3,3,3,3,3,3,3]]
+
+ts_list = test
+#sorted(merge_list_list(ts_list))
+
+def assign_pop(list1, list2, index1, index2):
+    for i in range(len(list2)):
+        list1[i][index1] = list2[i][index2]
+    return list1
+
+def scale_multiple_xs(long_ts, listof_short_xs, short_ts):
+    #longer ts, shorter xs, scale xs to be same length as ts
+    
+    listof_scaled_xs = [ [None] * len(long_ts) for i in range(len(listof_short_xs)) ]
+    for short_i in range(len(short_ts)):
+        time = short_ts[short_i]
+        long_i = long_ts.index(time)
+        
+        for i in range(len(listof_short_xs)): 
+            listof_scaled_xs[i][long_i] = listof_short_xs[i][short_i] 
+    return listof_scaled_xs   
+
+def fill_nan(list):
+    filled_list = [] 
+    last_value = 0
+    for value in list:
+        if value == None:
+            filled_list.append(last_value)
+        else:
+            last_value = value
+            filled_list.append(last_value)
+    return filled_list
+
+def fill_nan_ph(ph_lists):
+    out_list = []
+    for ph in ph_lists:
+       out_list.append(fill_nan(ph))
+    return out_list
+
+def main(ts_lists, ph_lists):     
+    merged_ts = sorted(merge_list_lists(ts_lists))
+    scaled_ph_lists = []
+    for i in range(len(ph_lists)):
+        nan_filled_ph_list = scale_multiple_xs(merged_ts, ph_lists[i], ts_lists[i])
+        
+        scaled_ph_lists.append(fill_nan_ph(nan_filled_ph_list))
+    
+    colors = [(0, 0, 1), (0, 0.5, 0), (1, 0, 0), (0, 0.75, 0.75), (0.75, 0, 0.75)]
+    for list in scaled_ph_lists:
+        ax1 = plt.subplot(511)
+        plt.plot(merged_ts, list[0], color='r', alpha=.25)
+        plt.ylabel('Zombies')
+        plt.title('Scenario X')
+
+        ax2 = plt.subplot(512)
+        plt.plot(merged_ts, list[1], color='r', alpha=.25)
+        plt.ylabel('Civil')
+
+        ax2 = plt.subplot(513)
+        plt.plot(merged_ts, list[2], color='r', alpha=.25)
+        plt.ylabel('Military')
+
+        ax2 = plt.subplot(514)
+        plt.plot(merged_ts, list[3], color='r', alpha=.25)
+        plt.ylabel('Scientists')
+
+        ax2 = plt.subplot(515)
+        plt.plot(merged_ts, list[4], color='r', alpha=.25)
+        plt.ylabel('Resistant')
+
+    plt.subplots_adjust(hspace=0)
+
+        #i = 0
+        #for ph in list:
+        #    plt.plot(merged_ts, ph, color=colors[i], alpha=.2)
+        #    i+=1
+    #plt.legend(['Zombies', 'Civil', 'Military', 'Scientists', 'Resistant'])
+    
+    
+    asdf = []
+    for ph in scaled_ph_lists:
+        asdf.append(ph[1])
+    list_list = get_mean_and_extremes(asdf)
+    print(len(asdf[0]), len(ts))
+    print(len(list_list[0]), len(ts))
+    #plt.plot(ts, list_list[1])
+    #plt.fill_between(ts, list_list[0], list_list[2] )
+    plt.show()            
+
+def get_mean_and_extremes(list_list):
+    max_list = []
+    mean_list = []
+    min_list = []
+    for i in range(len(list_list[0])):
+        # make a list of values @index
+        tmp_list =[]
+        for j in range(len(list_list)):
+            tmp_list.append(list_list[j][i])
+        max_list.append(max(tmp_list))
+        mean_list.append(statistics.fmean(tmp_list))
+        min_list.append(min(tmp_list))
+    print(len(list_list[0]), len(max_list))
+    return max_list, mean_list, min_list
 
 
 
+#%%
+N = 75
+ph_list = []
+ts_list = []
+for i in range(N):
+    pop = Population.POPULATION(civil=1000, military=100, scientists=5)
+    ts = Kendall_Feller(events, 0, end_time)
+    ts_list.append(ts)
+    phs = [ph for ph in pop.get_history().values()]
+    ph_list.append(phs)
 
-
-
-
-
+#%%
+main(ts_list, ph_list)
