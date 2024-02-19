@@ -8,7 +8,62 @@ import Population
 pop = Population.POPULATION(civil=1000, military=100, scientists=5)
 end_time = 3000
 vaccine_effectiveness = 1      
-events = [
+scenario_with_vaccine = [
+    #CIVILS
+    #{"NAME": "ZOMBIE KILLS CIVIL",
+     #"W_a": lambda pop: 0.05*pop.CIVIL*pop.ZOMBIES / pop.total_population(),
+     #"EFFECT": lambda pop: pop.decrease_civil()
+     #},
+    {"NAME": "CIVIL KILLS ZOMBIE",
+     "W_a": lambda pop: 0.01*pop.CIVIL*pop.ZOMBIES / pop.total_population(),
+     "EFFECT": lambda pop: pop.decrease_zombie()
+     },
+    {"NAME": "CIVIL GETS INFECTED",
+     "W_a": lambda pop: 0.05*pop.CIVIL*pop.ZOMBIES / pop.total_population(),
+     "EFFECT": lambda pop: pop.civil_becomes_zombie()
+     },
+    # MILITARY 
+    {"NAME": "MILITARY GETS INFECTED",
+     "W_a": lambda pop: (1-vaccine_effectiveness*pop.is_vaccine_invented())*0.02*pop.MILITARY*pop.ZOMBIES / pop.total_population(),
+     "EFFECT": lambda pop: pop.military_becomes_zombie()
+     },
+    {"NAME": "MILITARY KILLS ZOMBIE",
+     "W_a": lambda pop: 0.1*pop.MILITARY*pop.ZOMBIES / pop.total_population(),
+     "EFFECT": lambda pop: pop.decrease_zombie()},
+    {"NAME": "ZOMBIE KILLS MILITARY",
+     "W_a": lambda pop: 0.01*pop.MILITARY*pop.ZOMBIES / pop.total_population(),
+     "EFFECT": lambda pop: pop.decrease_military()
+     },
+     {"NAME": "MILITARY KILLS CIVIL",
+     "W_a": lambda pop: 0.001*pop.MILITARY*pop.ZOMBIES*pop.CIVIL / pop.total_population(),
+     "EFFECT": lambda pop: pop.decrease_civil()
+     },
+    # SCIENTISTS
+    {"NAME": "VACCINE GETS INVENTED",
+     "W_a": lambda pop: (1-pop.is_vaccine_invented())*100*pop.SCIENTISTS,
+     "EFFECT": lambda pop: pop.invent_vaccine()
+    },
+     {"NAME": "ZOMBIE KILLS SCIENTIST",
+     "W_a": lambda pop: 0.01*pop.SCIENTISTS*pop.ZOMBIES / pop.total_population(),
+     "EFFECT": lambda pop: pop.decrease_civil()
+     },
+     {"NAME": "SCIENTIST GETS INFECTED",
+     "W_a": lambda pop: (1-vaccine_effectiveness*pop.is_vaccine_invented())*0.01*pop.SCIENTISTS*pop.ZOMBIES / pop.total_population(),
+     "EFFECT": lambda pop: pop.scientist_becomes_zombie()
+     },
+     #RESISTANT
+     {"NAME": "CIVIL BECOMES RESISTANT",
+     "W_a": lambda pop: (1-pop.is_vaccine_invented())*pop.SCIENTISTS*pop.CIVIL / pop.total_population(),
+     "EFFECT": lambda pop: pop.civil_becomes_resistant()
+     },
+     {"NAME": "RESISTANT KILLS ZOMBIE",
+     "W_a": lambda pop: 0.01*pop.RESISTANT*pop.ZOMBIES / pop.total_population(),
+     "EFFECT": lambda pop: pop.decrease_zombie()
+     }
+     
+    ]
+
+scenario_no_vaccine = [
     #CIVILS
     #{"NAME": "ZOMBIE KILLS CIVIL",
      #"W_a": lambda pop: 0.05*pop.CIVIL*pop.ZOMBIES / pop.total_population(),
@@ -39,10 +94,6 @@ events = [
      "EFFECT": lambda pop: pop.decrease_civil()
      },
     # SCIENTISTS
-    {"NAME": "VACCINE GETS INVENTED",
-     "W_a": lambda pop: (1-pop.is_vaccine_invented())*0.01*pop.SCIENTISTS,
-     "EFFECT": lambda pop: pop.invent_vaccine()
-    },
      {"NAME": "ZOMBIE KILLS SCIENTIST",
      "W_a": lambda pop: 0.1*pop.SCIENTISTS*pop.ZOMBIES / pop.total_population(),
      "EFFECT": lambda pop: pop.decrease_civil()
@@ -62,7 +113,6 @@ events = [
      }
      
     ]
-
 
 '''
 1. Place yourself immediately after and event
@@ -126,8 +176,10 @@ def Kendall_Feller(events, start, stop):
     return ts
     
 
-ts = Kendall_Feller(events, 0, end_time)
+ts = Kendall_Feller(scenario_with_vaccine, 0, end_time)
 #splt.plot(ts,range(0, len(ts)), marker="x")
+
+
 
 plot_pop_history(ts, pop.get_history())
 plt.show()
