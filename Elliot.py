@@ -22,7 +22,7 @@ scenario_with_vaccine = [
      "EFFECT": lambda pop: pop.decrease_zombie()
      },
     {"NAME": "CIVIL GETS INFECTED",
-     "W_a": lambda pop: 0.05*pop.CIVIL*pop.ZOMBIES / pop.total_population(),
+     "W_a": lambda pop: 0.01*pop.CIVIL*pop.ZOMBIES / pop.total_population(),
      "EFFECT": lambda pop: pop.civil_becomes_zombie()
      },
     # MILITARY 
@@ -43,7 +43,7 @@ scenario_with_vaccine = [
      },
     # SCIENTISTS
     {"NAME": "VACCINE GETS INVENTED",
-     "W_a": lambda pop: (1-pop.is_vaccine_invented())*100*pop.SCIENTISTS,
+     "W_a": lambda pop: (1-pop.is_vaccine_invented())*0.1*pop.SCIENTISTS,
      "EFFECT": lambda pop: pop.invent_vaccine()
     },
      {"NAME": "ZOMBIE KILLS SCIENTIST",
@@ -102,7 +102,7 @@ scenario_no_vaccine = [
      "EFFECT": lambda pop: pop.decrease_civil()
      },
      {"NAME": "SCIENTIST GETS INFECTED",
-     "W_a": lambda pop: (1-vaccine_effectiveness*pop.is_vaccine_invented())*0.1*pop.SCIENTISTS*pop.ZOMBIES / pop.total_population(),
+     "W_a": lambda pop: (1-vaccine_effectiveness*pop.is_vaccine_invented())*0.01*pop.SCIENTISTS*pop.ZOMBIES / pop.total_population(),
      "EFFECT": lambda pop: pop.scientist_becomes_zombie()
      },
      #RESISTANT
@@ -117,6 +117,68 @@ scenario_no_vaccine = [
      
     ]
 
+Edgar_scenario = [
+    #CIVILS
+    {"NAME": "ZOMBIE KILLS CIVIL",
+     "W_a": lambda pop: 0.1*pop.CIVIL*pop.ZOMBIES / pop.total_population(),
+     "EFFECT": lambda pop: pop.decrease_civil()
+     },
+    {"NAME": "CIVIL KILLS ZOMBIE",
+     "W_a": lambda pop: 0.01*pop.CIVIL*pop.ZOMBIES / pop.total_population(),
+     "EFFECT": lambda pop: pop.decrease_zombie()
+     },
+    {"NAME": "CIVIL GETS INFECTED",
+     "W_a": lambda pop: 0.4*pop.CIVIL*pop.ZOMBIES / pop.total_population(),
+     "EFFECT": lambda pop: pop.civil_becomes_zombie()
+     },
+    # MILITARY 
+    {"NAME": "MILITARY GETS INFECTED",
+     "W_a": lambda pop: (1-vaccine_effectiveness*pop.is_vaccine_invented())*0.02*pop.MILITARY*pop.ZOMBIES / pop.total_population(),
+     "EFFECT": lambda pop: pop.military_becomes_zombie()
+     },
+    {"NAME": "MILITARY KILLS ZOMBIE",
+     "W_a": lambda pop: 0.8*pop.MILITARY*pop.ZOMBIES / pop.total_population(),
+     "EFFECT": lambda pop: pop.decrease_zombie()},
+    {"NAME": "ZOMBIE KILLS MILITARY",
+     "W_a": lambda pop: 0.02*pop.MILITARY*pop.ZOMBIES / pop.total_population(),
+     "EFFECT": lambda pop: pop.decrease_military()
+     },
+     {"NAME": "MILITARY KILLS CIVIL",
+     "W_a": lambda pop: 0.002*pop.MILITARY*pop.ZOMBIES*pop.CIVIL / pop.total_population(),
+     "EFFECT": lambda pop: pop.decrease_civil()
+     },
+    # SCIENTISTS
+    {"NAME": "VACCINE GETS INVENTED",
+     "W_a": lambda pop: (pop.is_vaccine_invented())*.04*pop.SCIENTISTS,
+     "EFFECT": lambda pop: pop.invent_vaccine()
+    },
+     {"NAME": "ZOMBIE KILLS SCIENTIST",
+     "W_a": lambda pop: (1-pop.MILITARY/pop.total_population())*0.1*pop.SCIENTISTS*pop.ZOMBIES / pop.total_population(),
+     "EFFECT": lambda pop: pop.decrease_scientists()
+     },
+     {"NAME": "SCIENTIST GETS INFECTED",
+     "W_a": lambda pop: (1-vaccine_effectiveness*pop.is_vaccine_invented())*0.1*pop.SCIENTISTS*pop.ZOMBIES / pop.total_population(),
+     "EFFECT": lambda pop: pop.scientist_becomes_zombie()
+     },
+     #RESISTANT
+     {"NAME": "CIVIL BECOMES RESISTANT",
+     "W_a": lambda pop: (1-pop.is_vaccine_invented())*0.9*pop.MILITARY*pop.CIVIL / pop.total_population(),
+     "EFFECT": lambda pop: pop.civil_becomes_resistant()
+     },
+     {"NAME": "ZOMBIE KILLS RESISTANT",
+     "W_a": lambda pop: 0.1*pop.RESISTANT*pop.ZOMBIES / pop.total_population(),
+     "EFFECT": lambda pop: pop.decrease_resistants()
+     },
+     {"NAME": "MILITARY KILLS RESISTANT",
+     "W_a": lambda pop: 0.002*pop.MILITARY*pop.RESISTANT*pop.CIVIL / pop.total_population(),
+     "EFFECT": lambda pop: pop.decrease_resistants()
+     },
+     {"NAME": "RESISTANT KILLS ZOMBIE",
+     "W_a": lambda pop: 0.01*pop.RESISTANT*pop.ZOMBIES / pop.total_population(),
+     "EFFECT": lambda pop: pop.decrease_zombie()
+     }
+     
+    ]
 #%%
 '''
 1. Place yourself immediately after and event
@@ -342,7 +404,7 @@ for i in range(N):
     end_time = 300
     vaccine_effectiveness = 1  
     pop = Population.POPULATION(zombies=1, civil=11000, military=60, scientists=5)
-    ts = Kendall_Feller(scenario_with_vaccine, 0, end_time)
+    ts = Kendall_Feller(Edgar_scenario, 0, end_time)
     ts_list.append(ts)
     phs = [ph for ph in pop.get_history().values()]
     ph_list.append(phs)
