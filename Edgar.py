@@ -3,23 +3,25 @@ import numpy as np
 import matplotlib.pyplot as plt
 import Population
 import statistics 
-
+%matplotlib inline
+%config InlineBackend.figure_format='retina'
+plt.rcParams['figure.figsize'] = (10, 10)
+#%%
 #pop is population   
 pop = Population.POPULATION(civil=1000, military=100, scientists=5)
-end_time = 2000
-vaccine_effectiveness = 1      
+    
 events = [
     #CIVILS
-    #{"NAME": "ZOMBIE KILLS CIVIL",
-     #"W_a": lambda pop: 0.05*pop.CIVIL*pop.ZOMBIES / pop.total_population(),
-     #"EFFECT": lambda pop: pop.decrease_civil()
-     #},
+    {"NAME": "ZOMBIE KILLS CIVIL",
+     "W_a": lambda pop: 0.1*pop.CIVIL*pop.ZOMBIES / pop.total_population(),
+     "EFFECT": lambda pop: pop.decrease_civil()
+     },
     {"NAME": "CIVIL KILLS ZOMBIE",
      "W_a": lambda pop: 0.01*pop.CIVIL*pop.ZOMBIES / pop.total_population(),
      "EFFECT": lambda pop: pop.decrease_zombie()
      },
     {"NAME": "CIVIL GETS INFECTED",
-     "W_a": lambda pop: 0.05*pop.CIVIL*pop.ZOMBIES / pop.total_population(),
+     "W_a": lambda pop: 0.4*pop.CIVIL*pop.ZOMBIES / pop.total_population(),
      "EFFECT": lambda pop: pop.civil_becomes_zombie()
      },
     # MILITARY 
@@ -40,12 +42,12 @@ events = [
      },
     # SCIENTISTS
     {"NAME": "VACCINE GETS INVENTED",
-     "W_a": lambda pop: (1-pop.is_vaccine_invented())*0.01*pop.SCIENTISTS,
+     "W_a": lambda pop: (pop.is_vaccine_invented())*.04*pop.SCIENTISTS,
      "EFFECT": lambda pop: pop.invent_vaccine()
     },
      {"NAME": "ZOMBIE KILLS SCIENTIST",
      "W_a": lambda pop: 0.1*pop.SCIENTISTS*pop.ZOMBIES / pop.total_population(),
-     "EFFECT": lambda pop: pop.decrease_civil()
+     "EFFECT": lambda pop: pop.decrease_scientists()
      },
      {"NAME": "SCIENTIST GETS INFECTED",
      "W_a": lambda pop: (1-vaccine_effectiveness*pop.is_vaccine_invented())*0.1*pop.SCIENTISTS*pop.ZOMBIES / pop.total_population(),
@@ -53,8 +55,16 @@ events = [
      },
      #RESISTANT
      {"NAME": "CIVIL BECOMES RESISTANT",
-     "W_a": lambda pop: (1-pop.is_vaccine_invented())*0.1*pop.SCIENTISTS*pop.CIVIL / pop.total_population(),
+     "W_a": lambda pop: (1-pop.is_vaccine_invented())*0.9*pop.MILITARY*pop.CIVIL / pop.total_population(),
      "EFFECT": lambda pop: pop.civil_becomes_resistant()
+     },
+     {"NAME": "ZOMBIE KILLS RESISTANT",
+     "W_a": lambda pop: 0.1*pop.RESISTANT*pop.ZOMBIES / pop.total_population(),
+     "EFFECT": lambda pop: pop.decrease_resistants()
+     },
+     {"NAME": "MILITARY KILLS RESISTANT",
+     "W_a": lambda pop: 0.002*pop.MILITARY*pop.RESISTANT*pop.CIVIL / pop.total_population(),
+     "EFFECT": lambda pop: pop.decrease_resistants()
      },
      {"NAME": "RESISTANT KILLS ZOMBIE",
      "W_a": lambda pop: 0.01*pop.RESISTANT*pop.ZOMBIES / pop.total_population(),
@@ -63,7 +73,22 @@ events = [
      
     ]
 
+# Run N simulations
+N = 2
+ph_list = []
+ts_list = []
+for i in range(N):
+    end_time = 300
+    vaccine_effectiveness = 1  
+    pop = Population.POPULATION(zombies=1, civil=11000, military=60, scientists=5, vaccine=1)
+    ts = Kendall_Feller(events, 0, end_time)
+    ts_list.append(ts)
+    phs = [ph for ph in pop.get_history().values()]
+    ph_list.append(phs)
 
+# Plot the result
+main(ts_list, ph_list)
+#%%
 '''
 1. Place yourself immediately after and event
 has occurred and compute the new populations.
@@ -187,13 +212,15 @@ def main(ts_lists, ph_lists):
     
     colors = [(0, 0, 1), (0, 0.5, 0), (1, 0, 0), (0, 0.75, 0.75), (0.75, 0, 0.75)]
     for list in scaled_ph_lists:
+        
         ax1 = plt.subplot(511)
         plt.plot(merged_ts, list[0], color='r', alpha=.25)
         plt.ylabel('Zombies')
         plt.title('Scenario X')
 
         ax2 = plt.subplot(512)
-        plt.plot(merged_ts, list[1], color='r', alpha=.25)
+        plt.plot(merged_ts, list[1] , color='r', alpha=.25)
+        #plt.ylim((100000, 400000))
         plt.ylabel('Civil')
 
         ax2 = plt.subplot(513)
@@ -239,21 +266,25 @@ def get_mean_and_extremes(list_list):
         max_list.append(max(tmp_list))
         mean_list.append(statistics.fmean(tmp_list))
         min_list.append(min(tmp_list))
-    print(len(list_list[0]), len(max_list))
+    #rint(len(list_list[0]), len(max_list))
     return max_list, mean_list, min_list
 
 
 
-#%%
-N = 75
+#%% Run N simulations
+N = 1
 ph_list = []
 ts_list = []
 for i in range(N):
-    pop = Population.POPULATION(civil=1000, military=100, scientists=5)
+    end_time = 300
+    vaccine_effectiveness = 1  
+    pop = Population.POPULATION(zombies=1, civil=11000, military=60, scientists=5)
     ts = Kendall_Feller(events, 0, end_time)
     ts_list.append(ts)
     phs = [ph for ph in pop.get_history().values()]
     ph_list.append(phs)
 
-#%%
+# Plot the result
 main(ts_list, ph_list)
+
+# %%

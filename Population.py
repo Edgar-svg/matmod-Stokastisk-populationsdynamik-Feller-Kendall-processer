@@ -1,6 +1,6 @@
 class POPULATION:
     
-    def __init__(self, civil, military, scientists, zombies = 1, resistant = 0, vaccine = 0):
+    def __init__(self, civil, military, scientists, zombies = 1, resistant = 0, vaccine = 1):
         self.CIVIL = civil
         self.MILITARY = military
         self.ZOMBIES = zombies
@@ -53,7 +53,7 @@ class POPULATION:
         self.SCIENTISTS += 1 
         
     def decrease_resistants(self):
-        self.SCIENTISTS -= 1
+        self.RESISTANT -= 1
         
     def increase_resistants(self):
         self.RESISTANT += 1
@@ -74,7 +74,7 @@ class POPULATION:
         return self.VACCINE
     
     def invent_vaccine(self):
-        self.VACCINE = 1
+        self.VACCINE = 0
         
     def civil_becomes_resistant(self):
         self.increase_resistants()
