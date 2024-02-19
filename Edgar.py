@@ -30,7 +30,7 @@ events = [
      "EFFECT": lambda pop: pop.military_becomes_zombie()
      },
     {"NAME": "MILITARY KILLS ZOMBIE",
-     "W_a": lambda pop: 0.1*pop.MILITARY*pop.ZOMBIES / pop.total_population(),
+     "W_a": lambda pop: 0.8*pop.MILITARY*pop.ZOMBIES / pop.total_population(),
      "EFFECT": lambda pop: pop.decrease_zombie()},
     {"NAME": "ZOMBIE KILLS MILITARY",
      "W_a": lambda pop: 0.02*pop.MILITARY*pop.ZOMBIES / pop.total_population(),
@@ -46,7 +46,7 @@ events = [
      "EFFECT": lambda pop: pop.invent_vaccine()
     },
      {"NAME": "ZOMBIE KILLS SCIENTIST",
-     "W_a": lambda pop: 0.1*pop.SCIENTISTS*pop.ZOMBIES / pop.total_population(),
+     "W_a": lambda pop: (1-pop.MILITARY/pop.total_population())*0.1*pop.SCIENTISTS*pop.ZOMBIES / pop.total_population(),
      "EFFECT": lambda pop: pop.decrease_scientists()
      },
      {"NAME": "SCIENTIST GETS INFECTED",
@@ -73,21 +73,6 @@ events = [
      
     ]
 
-# Run N simulations
-N = 2
-ph_list = []
-ts_list = []
-for i in range(N):
-    end_time = 300
-    vaccine_effectiveness = 1  
-    pop = Population.POPULATION(zombies=1, civil=11000, military=60, scientists=5, vaccine=1)
-    ts = Kendall_Feller(events, 0, end_time)
-    ts_list.append(ts)
-    phs = [ph for ph in pop.get_history().values()]
-    ph_list.append(phs)
-
-# Plot the result
-main(ts_list, ph_list)
 #%%
 '''
 1. Place yourself immediately after and event
@@ -271,8 +256,42 @@ def get_mean_and_extremes(list_list):
 
 
 
+
+
+# %% 
+
+
+def mass_plot(ts_sims, sims, alph=.1):
+    for i in range(len(sims)):
+        sim=sims[i] 
+        ts = ts_sims[i]      
+        ax1 = plt.subplot(511)
+        plt.plot(ts, sim[0], color='r', alpha=alph)
+        plt.ylabel('Zombies')
+        plt.title('Scenario X')
+
+        ax2 = plt.subplot(512)
+        plt.plot(ts, sim[1] , color='r', alpha=alph)
+        #plt.ylim((100000, 400000))
+        plt.ylabel('Civil')
+
+        ax2 = plt.subplot(513)
+        plt.plot(ts, sim[2], color='r', alpha=alph)
+        plt.ylabel('Military')
+
+        ax2 = plt.subplot(514)
+        plt.plot(ts, sim[3], color='r', alpha=alph)
+        plt.ylabel('Scientists')
+
+        ax2 = plt.subplot(515)
+        plt.plot(ts, sim[4], color='r', alpha=alph)
+        plt.ylabel('Resistant')
+
+    plt.subplots_adjust(hspace=0)
+    plt.show()         
+
 #%% Run N simulations
-N = 1
+N = 40
 ph_list = []
 ts_list = []
 for i in range(N):
@@ -285,6 +304,28 @@ for i in range(N):
     ph_list.append(phs)
 
 # Plot the result
-main(ts_list, ph_list)
+mass_plot(ts_list, ph_list)
 
-# %%
+
+
+
+#%%
+# Import pandas and matplotlib.pyplot
+
+# Create a sample DataFrame with different length and ending time series
+
+
+
+# Plot the two series on the same figure with different x-axes
+fig, ax = plt.subplots () # Create a new figure and axes
+ax.plot ([1, 2, 2.1, 3, 4], [1.2, 1.3, 1.1, 0.9, 0.8], "-b", label = "Series 1") # Plot the first series with blue solid line
+ax_tw = ax.twiny () # Create a twin axes that shares the y-axis
+ax_tw.plot ([2, 3, 4.1], [0.7, 0.6, 0.4], "--r", label = "Series 2") # Plot the second series with red dashed line
+
+
+ax.set_xlabel ("Time 1") # Add a label for the first x-axis
+ax_tw.set_xlabel ("Time 2") # Add a label for the second x-axis
+ax.set_ylabel ("Data values") # Add a label for the y-axis
+ax.legend (loc = "upper left") # Add a legend for the first series
+ax_tw.legend (loc = "upper right") # Add a legend for the second series
+plt.show () # Show the plot
