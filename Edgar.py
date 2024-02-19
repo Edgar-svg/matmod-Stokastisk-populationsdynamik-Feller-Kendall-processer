@@ -3,8 +3,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import Population
 import statistics 
-%%matplotlib inline
-%config InlineBackend.figure_format='retina'
+#%%matplotlib inline
+#%#config InlineBackend.figure_format='retina'
 plt.rcParams['figure.figsize'] = (10, 10)
 #%%
 #pop is population   
