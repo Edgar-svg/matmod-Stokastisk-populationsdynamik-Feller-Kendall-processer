@@ -72,7 +72,23 @@ events = [
      }
      
     ]
+# Run N simulations
+s=5
+m=60
+N = 40
+ph_list = []
+ts_list = []
+for i in range(N):
+    end_time = 300
+    vaccine_effectiveness = 1  
+    pop = Population.POPULATION(zombies=1, civil=11000, military=m, scientists=s)
+    ts = Kendall_Feller(events, 0, end_time)
+    ts_list.append(ts)
+    phs = [ph for ph in pop.get_history().values()]
+    ph_list.append(phs)
 
+# Plot the result
+mass_plot1(ts_list, ph_list, title='#S=' +str(s) + ', #M=' + str(m), alph=.05, linewidth=5)
 #%%
 '''
 1. Place yourself immediately after and event
@@ -261,14 +277,14 @@ def get_mean_and_extremes(list_list):
 # %% 
 
 
-def mass_plot(ts_sims, sims, alph=.1):
+def mass_plot(ts_sims, sims, title='Scenario X', alph=.1):
     for i in range(len(sims)):
         sim=sims[i] 
         ts = ts_sims[i]      
         ax1 = plt.subplot(511)
         plt.plot(ts, sim[0], color='r', alpha=alph)
         plt.ylabel('Zombies')
-        plt.title('Scenario X')
+        plt.title(title)
 
         ax2 = plt.subplot(512)
         plt.plot(ts, sim[1] , color='r', alpha=alph)
@@ -290,6 +306,63 @@ def mass_plot(ts_sims, sims, alph=.1):
     plt.subplots_adjust(hspace=0)
     plt.show()         
 
+def mass_plot1(ts_sims, sims, title='Scenario X', alph=.1, linewidth=5):
+    for i in range(len(sims)):
+        sim=sims[i] 
+        ts = ts_sims[i]      
+        ax1 = plt.subplot(311)
+        plt.plot(ts, sim[0], color='r', alpha=alph, linewidth=linewidth)
+        plt.ylabel('Zombies')
+        plt.title(title)
+
+        ax2 = plt.subplot(312)
+        plt.plot(ts, sim[1] , color='r', alpha=alph, linewidth=linewidth)
+        #plt.ylim((100000, 400000))
+        plt.ylabel('Civil')
+
+        #ax2 = plt.subplot(513)
+        #plt.plot(ts, sim[2], color='r', alpha=alph)
+        #plt.ylabel('Military')
+
+        #ax2 = plt.subplot(514)
+        #plt.plot(ts, sim[3], color='r', alpha=alph)
+        #plt.ylabel('Scientists')
+
+        ax2 = plt.subplot(313)
+        plt.plot(ts, sim[4], color='r', alpha=alph, linewidth=linewidth)
+        plt.ylabel('Resistant')
+
+    plt.subplots_adjust(hspace=0)
+    plt.show()      
+
+def mass_plot11(ts_sims, sims, title='Scenario X', alph=.1, linewidth=3):
+    for i in range(len(sims)):
+        sim=sims[i] 
+        ts = ts_sims[i]      
+        ax1 = plt.subplot(311)
+        plt.plot(ts, sim[0], color='r', alpha=alph, linewidth=linewidth)
+        #plt.ylabel('Zombies')
+        plt.title(title)
+
+        ax2 = plt.subplot(312)
+        plt.plot(ts, sim[1] , color='r', alpha=alph, linewidth=linewidth)
+        #plt.ylim((100000, 400000))
+        #plt.ylabel('Civil')
+
+        #ax2 = plt.subplot(513)
+        #plt.plot(ts, sim[2], color='r', alpha=alph)
+        #plt.ylabel('Military')
+
+        #ax2 = plt.subplot(514)
+        #plt.plot(ts, sim[3], color='r', alpha=alph)
+        #plt.ylabel('Scientists')
+
+        ax2 = plt.subplot(313)
+        plt.plot(ts, sim[4], color='r', alpha=alph, linewidth=linewidth)
+        #plt.ylabel('Resistant')
+
+    plt.subplots_adjust(hspace=0)
+    plt.show()         
 #%% Run N simulations
 N = 40
 ph_list = []
